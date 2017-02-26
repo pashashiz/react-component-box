@@ -22076,6 +22076,7 @@
 	        var _this = _possibleConstructorReturn(this, (CommentBox.__proto__ || Object.getPrototypeOf(CommentBox)).call(this, props));
 	
 	        _this.state = { data: [] };
+	        _this.handleCommentSubmit = _this.handleCommentSubmit.bind(_this);
 	        return _this;
 	    }
 	
@@ -22106,6 +22107,24 @@
 	            });
 	        }
 	    }, {
+	        key: 'handleCommentSubmit',
+	        value: function handleCommentSubmit(comment) {
+	            var _this3 = this;
+	
+	            _jquery2.default.ajax({
+	                url: this.props.url,
+	                dataType: 'json',
+	                type: 'POST',
+	                data: comment,
+	                success: function success(data) {
+	                    _this3.setState({ data: data });
+	                },
+	                error: function error(xhr, status, err) {
+	                    console.error(_this3.props.url, status, err.toString());
+	                }
+	            });
+	        }
+	    }, {
 	        key: 'render',
 	        value: function render() {
 	            return _react2.default.createElement(
@@ -22117,7 +22136,7 @@
 	                    'Comments'
 	                ),
 	                _react2.default.createElement(_CommentList2.default, { data: this.state.data }),
-	                _react2.default.createElement(_CommentForm2.default, null)
+	                _react2.default.createElement(_CommentForm2.default, { onCommentSubmit: this.handleCommentSubmit })
 	            );
 	        }
 	    }]);
@@ -32812,7 +32831,7 @@
   \****************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
@@ -32835,19 +32854,49 @@
 	var CommentForm = function (_React$Component) {
 	    _inherits(CommentForm, _React$Component);
 	
-	    function CommentForm() {
+	    function CommentForm(props) {
 	        _classCallCheck(this, CommentForm);
 	
-	        return _possibleConstructorReturn(this, (CommentForm.__proto__ || Object.getPrototypeOf(CommentForm)).apply(this, arguments));
+	        var _this = _possibleConstructorReturn(this, (CommentForm.__proto__ || Object.getPrototypeOf(CommentForm)).call(this, props));
+	
+	        _this.state = { author: '', text: '' };
+	        _this.handleAuthorChange = _this.handleAuthorChange.bind(_this);
+	        _this.handleTextChange = _this.handleTextChange.bind(_this);
+	        _this.handleSubmit = _this.handleSubmit.bind(_this);
+	        return _this;
 	    }
 	
 	    _createClass(CommentForm, [{
-	        key: "render",
+	        key: 'handleAuthorChange',
+	        value: function handleAuthorChange(e) {
+	            this.setState({ author: e.target.value });
+	        }
+	    }, {
+	        key: 'handleTextChange',
+	        value: function handleTextChange(e) {
+	            this.setState({ text: e.target.value });
+	        }
+	    }, {
+	        key: 'handleSubmit',
+	        value: function handleSubmit(e) {
+	            e.preventDefault();
+	            var author = this.state.author.trim();
+	            var text = this.state.text.trim();
+	            if (!text || !author) {
+	                return;
+	            }
+	            this.props.onCommentSubmit({ author: author, text: text });
+	            this.setState({ author: '', text: '' });
+	        }
+	    }, {
+	        key: 'render',
 	        value: function render() {
 	            return _react2.default.createElement(
-	                "div",
-	                { className: "commentForm" },
-	                "Hello, world! I am a CommentForm."
+	                'form',
+	                { className: 'commentForm', onSubmit: this.handleSubmit },
+	                _react2.default.createElement('input', { type: 'text', onChange: this.handleAuthorChange, placeholder: 'Your name' }),
+	                _react2.default.createElement('input', { type: 'text', onChange: this.handleTextChange, placeholder: 'Say something...' }),
+	                _react2.default.createElement('input', { type: 'submit', value: 'Post' })
 	            );
 	        }
 	    }]);
